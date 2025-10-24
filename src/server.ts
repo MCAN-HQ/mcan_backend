@@ -162,12 +162,12 @@ if (process.env.API_DOCS_ENABLED === 'true') {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/eid', eidRoutes);
-// app.use('/api/v1/users', userRoutes);
-// app.use('/api/v1/members', memberRoutes);
-// app.use('/api/v1/payments', paymentRoutes);
-// app.use('/api/v1/properties', propertyRoutes);
-// app.use('/api/v1/marketplace', marketplaceRoutes);
-// app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/members', memberRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/properties', propertyRoutes);
+app.use('/api/v1/marketplace', marketplaceRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 
 // Contact form endpoint
 app.post('/api/v1/contact', async (req, res) => {
