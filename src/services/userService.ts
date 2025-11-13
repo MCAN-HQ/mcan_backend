@@ -7,13 +7,13 @@ const USERS_TABLE = 'users';
 
 export const userService = {
   async findByEmail(email: string): Promise<User | null> {
-    const user = await db<User>(USERS_TABLE).where({ email }).first();
-    return user || null;
+    const user = await db(USERS_TABLE).where({ email }).first();
+    return user ? this.mapRowToUser(user) : null;
   },
 
   async findById(id: string): Promise<User | null> {
-    const user = await db<User>(USERS_TABLE).where({ id }).first();
-    return user || null;
+    const user = await db(USERS_TABLE).where({ id }).first();
+    return user ? this.mapRowToUser(user) : null;
   },
 
   async createUser(data: RegisterData): Promise<User> {
@@ -35,9 +35,8 @@ export const userService = {
       updated_at: new Date(),
     };
 
-    await db(USERS_TABLE).insert(newUser);
-
-    return this.mapRowToUser(newUser);
+    const [inserted] = await db(USERS_TABLE).insert(newUser).returning('*');
+    return this.mapRowToUser(inserted);
   },
 
   mapRowToUser(row: any): User {
