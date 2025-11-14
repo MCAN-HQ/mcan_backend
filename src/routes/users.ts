@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { userController } from '../controllers/userController';
 import { authenticate } from '../middleware/auth';
 import { authorize } from '../middleware/authorize';
+import { validateRequest } from '../middleware/validateRequest';
+import { userValidation } from '../utils/validation';
 
 const router = Router();
 
@@ -120,6 +122,8 @@ router.get('/:id',
  *         description: User not found
  */
 router.put('/:id',
+  authorize(['SUPER_ADMIN', 'NATIONAL_ADMIN']),
+  validateRequest(userValidation.updateUser),
   userController.updateUser
 );
 
