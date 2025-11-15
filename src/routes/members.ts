@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { memberController } from '../controllers/memberController';
 import { authenticate } from '../middleware/auth';
 import { authorize } from '../middleware/authorize';
+import { validateRequest } from '../middleware/validateRequest';
+import { memberValidation } from '../utils/validation';
 
 const router = Router();
 
@@ -97,8 +99,6 @@ router.get('/:id',
  *                 type: string
  *               stateCode:
  *                 type: string
- *               nyscNumber:
- *                 type: string
  *               deploymentState:
  *                 type: string
  *               serviceYear:
@@ -111,6 +111,7 @@ router.get('/:id',
  */
 router.post('/',
   authorize(['SUPER_ADMIN', 'NATIONAL_ADMIN', 'STATE_AMEER', 'STATE_SECRETARY']),
+  validateRequest(memberValidation.createMember),
   memberController.createMember
 );
 
@@ -137,8 +138,6 @@ router.post('/',
  *             properties:
  *               stateCode:
  *                 type: string
- *               nyscNumber:
- *                 type: string
  *               deploymentState:
  *                 type: string
  *               serviceYear:
@@ -153,6 +152,8 @@ router.post('/',
  *         description: Member not found
  */
 router.put('/:id',
+  authorize(['SUPER_ADMIN', 'NATIONAL_ADMIN', 'STATE_AMEER', 'STATE_SECRETARY']),
+  validateRequest(memberValidation.updateMember),
   memberController.updateMember
 );
 
