@@ -2,11 +2,10 @@ import { Router } from 'express';
 import { propertyController } from '../controllers/propertyController';
 import { authenticate } from '../middleware/auth';
 import { authorize } from '../middleware/authorize';
+import { validateRequest } from '../middleware/validateRequest';
+import { propertyValidation } from '../utils/validation';
 
 const router = Router();
-
-// All routes require authentication
-router.use(authenticate);
 
 /**
  * @swagger
@@ -14,8 +13,6 @@ router.use(authenticate);
  *   get:
  *     summary: Get all properties
  *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -55,12 +52,30 @@ router.get('/',
 
 /**
  * @swagger
+ * /api/v1/properties/map:
+ *   get:
+ *     summary: Get properties for map view
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: query
+ *         name: bounds
+ *         schema:
+ *           type: string
+ *         description: Map bounds in format "lat1,lng1,lat2,lng2"
+ *     responses:
+ *       200:
+ *         description: Properties for map retrieved successfully
+ */
+router.get('/map',
+  propertyController.getPropertiesForMap
+);
+
+/**
+ * @swagger
  * /api/v1/properties/{id}:
  *   get:
  *     summary: Get property by ID
  *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -73,9 +88,15 @@ router.get('/',
  *       404:
  *         description: Property not found
  */
+// Protected routes below
+router.use(authenticate);
+
 router.get('/:id',
   propertyController.getPropertyById
 );
+
+// Protected routes below
+router.use(authenticate);
 
 /**
  * @swagger
@@ -131,6 +152,7 @@ router.get('/:id',
  */
 router.post('/',
   authorize(['SUPER_ADMIN', 'NATIONAL_ADMIN', 'STATE_AMEER', 'STATE_SECRETARY']),
+  validateRequest(propertyValidation.createProperty),
   propertyController.createProperty
 );
 
@@ -173,6 +195,8 @@ router.post('/',
  *         description: Property not found
  */
 router.put('/:id',
+  authorize(['SUPER_ADMIN', 'NATIONAL_ADMIN', 'STATE_AMEER', 'STATE_SECRETARY']),
+  validateRequest(propertyValidation.updateProperty),
   propertyController.updateProperty
 );
 
@@ -232,29 +256,8 @@ router.delete('/:id',
  *         description: Photos uploaded successfully
  */
 router.post('/:id/photos',
+  authorize(['SUPER_ADMIN', 'NATIONAL_ADMIN', 'STATE_AMEER', 'STATE_SECRETARY']),
   propertyController.uploadPhotos
-);
-
-/**
- * @swagger
- * /api/v1/properties/map:
- *   get:
- *     summary: Get properties for map view
- *     tags: [Properties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: bounds
- *         schema:
- *           type: string
- *         description: Map bounds in format "lat1,lng1,lat2,lng2"
- *     responses:
- *       200:
- *         description: Properties for map retrieved successfully
- */
-router.get('/map',
-  propertyController.getPropertiesForMap
 );
 
 export default router;
