@@ -61,10 +61,16 @@ export const eidService = {
   },
 
   async generateForUser(user: User): Promise<EIDCardRecord> {
-    const existing = await this.getByUserId(user.id);
-    if (existing) return existing;
-
     const svg = this.buildSvg(user);
+    const existing = await this.getByUserId(user.id);
+    if (existing) {
+      const [updated] = await db<EIDCardRecord>('eid_cards')
+        .where({ id: existing.id })
+        .update({ svg_markup: svg, version: 'v1', updated_at: new Date() })
+        .returning(['id', 'user_id', 'svg_markup', 'version', 'created_at', 'updated_at']);
+      return updated as EIDCardRecord;
+    }
+
     const [inserted] = await db<EIDCardRecord>('eid_cards')
       .insert({
         id: uuidv4(),
